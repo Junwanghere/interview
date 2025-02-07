@@ -160,27 +160,39 @@ const editForm = ref({
 })
 
 const fetchData = async () => {
-  const { data } = await axios.get(baseUrl + '/a')
+  try{
+    const { data } = await axios.get(baseUrl + '/a')
     blockData.value = data
+  }catch(error){
+    alert('發生錯誤，請稍後再嘗試')
+  }
 }
 
 const handleCreate = async () => {
-  const res = await axios.post('https://dahua.metcfire.com.tw/api/CRUDTest', {
-    name: tempData.value.name,
-    age: tempData.value.age
-  })
-  if(res.status == 200){
-    tempData.value.name = ''
-    tempData.value.age = ''
-    fetchData()
+  try{
+      const res = await axios.post('https://dahua.metcfire.com.tw/api/CRUDTest', {
+      name: tempData.value.name,
+      age: tempData.value.age
+    })
+    if(res.status == 200){
+      tempData.value.name = ''
+      tempData.value.age = ''
+      fetchData()
+    }
+  }catch(error){
+    alert('發生錯誤，請稍後再嘗試')
   }
 }
 
 const deleteData = async (id: string) => {
-  const res = await axios.delete(`${baseUrl}/${id}`)
-  if(res.status == 200){
+  try{
+    const res = await axios.delete(`${baseUrl}/${id}`)
+    if(res.status == 200){
+      fetchData()
+    }
+  }catch(error){
+    alert('發生錯誤，請稍後再嘗試')
   }
-  fetchData()
 }
 
 
