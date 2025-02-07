@@ -4,7 +4,7 @@
       <div class="q-mb-xl">
         <q-input v-model="tempData.name" label="姓名" />
         <q-input v-model="tempData.age" label="年齡" />
-        <q-btn color="primary" class="q-mt-md">新增</q-btn>
+        <q-btn @click="handleCreate" color="primary" class="q-mt-md">新增</q-btn>
       </div>
 
       <q-table
@@ -29,38 +29,39 @@
 
         <template v-slot:body="props">
           <q-tr :props="props">
-            <q-td
-              v-for="col in props.cols"
-              :key="col.name"
-              :props="props"
-              style="min-width: 120px"
-            >
-              <div>{{ col.value }}</div>
-            </q-td>
-            <q-td class="text-right" auto-width v-if="tableButtons.length > 0">
-              <q-btn
-                @click="handleClickOption(btn, props.row)"
-                v-for="(btn, index) in tableButtons"
-                :key="index"
-                size="sm"
-                color="grey-6"
-                round
-                dense
-                :icon="btn.icon"
-                class="q-ml-md"
-                padding="5px 5px"
+              <q-td
+                v-for="col in props.cols"
+                :key="col.name"
+                :props="props"
+                style="min-width: 120px"
               >
-                <q-tooltip
-                  transition-show="scale"
-                  transition-hide="scale"
-                  anchor="top middle"
-                  self="bottom middle"
-                  :offset="[10, 10]"
+                <div>{{ col.value }}</div>
+              </q-td>
+              <q-td class="text-right" auto-width v-if="tableButtons.length > 0">
+                <q-btn
+                  @click.prevent="handleClickOption(btn, props.row)"
+                  v-for="(btn, index) in tableButtons"
+                  :key="index"
+                  size="sm"
+                  color="grey-6"
+                  round
+                  dense
+                  :icon="btn.icon"
+                  class="q-ml-md"
+                  padding="5px 5px"
                 >
-                  {{ btn.label }}
-                </q-tooltip>
-              </q-btn>
-            </q-td>
+                  <q-tooltip
+                    transition-show="scale"
+                    transition-hide="scale"
+                    anchor="top middle"
+                    self="bottom middle"
+                    :offset="[10, 10]"
+                  >
+                    {{ btn.label }}
+                  </q-tooltip>
+                </q-btn>
+              </q-td>
+
           </q-tr>
         </template>
         <template v-slot:no-data="{ icon }">
@@ -79,8 +80,8 @@
 
 <script setup lang="ts">
 import axios from 'axios';
-import { QTableProps } from 'quasar';
-import { ref } from 'vue';
+import { QTableProps, useQuasar} from 'quasar';
+import { ref, onMounted } from 'vue';
 interface btnType {
   label: string;
   icon: string;
@@ -125,7 +126,68 @@ const tempData = ref({
 });
 function handleClickOption(btn, data) {
   // ...
+  switch (btn.label) {
+    case '刪除':
+      openDeleteDialog(data.id)
+      break;
+    case '編輯':
+    default:
+      break;
+  }
 }
+
+const $q = useQuasar()
+
+function openDeleteDialog(id){
+  $q.dialog({
+    title: "提示",
+    message: "是否確定刪除該筆資料？",
+    cancel: '取消',
+    ok: '確定'
+  }).onOk(() => {
+    deleteData(id)
+  }).onCancel(() => {
+  });
+}
+
+
+
+
+const baseUrl = 'https://dahua.metcfire.com.tw/api/CRUDTest'
+const editForm = ref({
+  name: '',
+  age: ''
+})
+
+const fetchData = async () => {
+  const { data } = await axios.get(baseUrl + '/a')
+    blockData.value = data
+}
+
+const handleCreate = async () => {
+  const res = await axios.post('https://dahua.metcfire.com.tw/api/CRUDTest', {
+    name: tempData.value.name,
+    age: tempData.value.age
+  })
+  if(res.status == 200){
+    tempData.value.name = ''
+    tempData.value.age = ''
+    fetchData()
+  }
+}
+
+const deleteData = async (id: string) => {
+  const res = await axios.delete(`${baseUrl}/${id}`)
+  if(res.status == 200){
+  }
+  fetchData()
+}
+
+
+
+onMounted(() => {
+  fetchData()
+})
 </script>
 
 <style lang="scss" scoped>
