@@ -82,11 +82,7 @@
 import axios from 'axios';
 import { QTableProps, useQuasar} from 'quasar';
 import { ref, onMounted } from 'vue';
-interface btnType {
-  label: string;
-  icon: string;
-  status: string;
-}
+
 const blockData = ref([
   {
     name: 'test',
@@ -124,7 +120,7 @@ const tempData = ref({
   name: '',
   age: '',
 });
-function handleClickOption(btn, data) {
+function handleClickOption(btn: any, data: any) {
   // ...
   switch (btn.label) {
     case '刪除':
@@ -138,7 +134,7 @@ function handleClickOption(btn, data) {
 
 const $q = useQuasar()
 
-function openDeleteDialog(id){
+function openDeleteDialog(id: any){
   $q.dialog({
     title: "提示",
     message: "是否確定刪除該筆資料？",
@@ -146,8 +142,7 @@ function openDeleteDialog(id){
     ok: '確定'
   }).onOk(() => {
     deleteData(id)
-  }).onCancel(() => {
-  });
+  })
 }
 
 
